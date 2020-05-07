@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:ui_flutter/model/app_state.dart';
+import 'package:ui_flutter/blocs/welcome_bloc.dart';
 
 class Footer extends StatefulWidget {
   final int currentStep;
@@ -29,8 +28,14 @@ class _FooterState extends State<Footer> {
   final double radius = 10.0;
   final double distance = 4.0;
   Container stepper;
-  StoreConnector<AppState, AppState> nextArrow;
+  StreamBuilder nextArrow;
   bool lastPage;
+  // WelcomeBloc _welcomeBloc;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
@@ -41,7 +46,6 @@ class _FooterState extends State<Footer> {
   Widget build(BuildContext context) {
     this._makeStepper();
     this._makeNextArrow();
-
     return Container(
       alignment: Alignment.bottomCenter,
       padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
@@ -89,27 +93,26 @@ class _FooterState extends State<Footer> {
   }
 
   _makeNextArrow() {
-    this.nextArrow = StoreConnector<AppState, AppState>(
-      converter: (store) => store.state,
-      builder: (context, state) {
-        return Container(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: GestureDetector(
-                onTap: () {
-                  state.pageController.nextPage(
-                    duration:
-                        this.widget.duration ?? Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                child: Icon(
-                  Icons.arrow_forward,
-                )),
-          ),
-        );
-      },
-    );
+    this.nextArrow = StreamBuilder(
+        stream: welcomeBloc.combined,
+        builder: (context, AsyncSnapshot snapshot) {
+          return Container(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: GestureDetector(
+                  onTap: () {
+                    // welcomeBloc.getController?.nextPage(
+                    //   duration:
+                    //       this.widget.duration ?? Duration(milliseconds: 500),
+                    //   curve: Curves.easeInOut,
+                    // );
+                  },
+                  child: Icon(
+                    Icons.arrow_forward,
+                  )),
+            ),
+          );
+        });
   }
 
   _onLastPage() {
@@ -135,9 +138,17 @@ class _FooterState extends State<Footer> {
     if (currentPage == 1 && this.widget.currentStep == null) {
       this._onFirstPage();
     } else if (currentPage == this.widget.totalSteps) {
+      print('lastPage detected');
+      // setState(() {
       this.lastPage = true;
+      // });
+      // welcomeBloc.updatePageState(true);
       this._onLastPage();
     } else {
+      // setState(() {
+      // welcomeBloc.updatePageState(false);
+      // });
+      // _welcomeBloc.lastPage = false;
     }
   }
 }

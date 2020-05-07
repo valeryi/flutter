@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:ui_flutter/model/app_state.dart';
-import 'package:ui_flutter/screens/welcome/welcome_bloc.dart';
+import 'package:ui_flutter/blocs/welcome_bloc.dart';
 import './footer.dart';
 import './viewWrapper.dart';
 import './header.dart';
@@ -13,32 +11,41 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
-  // WelcomeBloc _welcomeBloc;
+
+  @override
+  void dispose() {
+    super.dispose();
+    // welcomeBloc.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // print(
+    //     'Welcome: _welcome.currentPage - ${welcomeBloc.currentPage.listen((page) => print(page))}');
+  }
 
   @override
   Widget build(BuildContext context) {
-    // print('Welcome: _welcome.currentPage - ${this._welcomeBloc.lastPage}');
-
-    return Scaffold(
-      body: StoreConnector<AppState, AppState>(
-        converter: (store) => store.state,
-        builder: (context, state) {
-          return SafeArea(
-            child: Stack(
-              children: <Widget>[
-                ViewerWrapper(),
-                Footer(
-                  currentStep: state.currentPage,
-                  totalSteps: 3,
-                  activeColor: Colors.grey[800],
-                  inactiveColor: Colors.grey[100],
-                ),
-                WelcomeHeader,
-              ],
+    return StreamBuilder(
+        stream: welcomeBloc.combined,
+        builder: (context, AsyncSnapshot snapshot) {
+          return Scaffold(
+            body: SafeArea(
+              child: Stack(
+                children: <Widget>[
+                  ViewerWrapper(),
+                  Footer(
+                    currentStep: 1,
+                    totalSteps: 3,
+                    activeColor: Colors.grey[800],
+                    inactiveColor: Colors.grey[100],
+                  ),
+                  WelcomeHeader,
+                ],
+              ),
             ),
           );
-        },
-      ),
-    );
+        });
   }
 }
